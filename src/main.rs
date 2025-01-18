@@ -24,7 +24,7 @@ fn main() -> ::anyhow::Result<()> {
 
     categories.perform_self_check()?;
 
-    println!("{categories:#?}");
+    println!("Here is the parsed data:\n\n{categories:#?}");
 
 	categories.write_as_markdown(arguments.output_file_path_markdown)?;
 	categories.write_as_shell(arguments.output_file_path_shell)?;
