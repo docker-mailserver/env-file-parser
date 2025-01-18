@@ -12,20 +12,57 @@ readme = '/README.md'
 homepage = 'https://github.com/docker-mailserver/env-file-parser'
 repository = 'https://github.com/docker-mailserver/env-file-parser'
 
-keywords = [
-  'parser',
-  'environment',
-  'markdown'
-]
-
-categories = [
-  'config',
-]
+keywords = ['parser', 'environment', 'markdown']
+categories = ['config']
 
 publish = false
 
 [dependencies]
-anyhow = "1.0.69"
-clap = { version = "4.1.6", features = ["derive"] }
-serde = { version = "1.0.152", features = ["derive"] }
-serde_yaml = "0.9.17"
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_valid = "1.0.5"
+serde_yaml = "0.9"
+
+[profile.release]
+codegen-units = 2
+incremental = true
+lto = true
+overflow-checks = true
+strip = true
+
+[lints]
+
+# General lints "inherent" in Rustlang.
+[lints.rust]
+# We require docs on all items
+missing_docs = "deny"
+# We require a debug implementation on all items
+missing_debug_implementations = "deny"
+
+# Lint target for code documentation. When running `rustdoc`,
+# show an error when using broken links.
+[lints.rustdoc]
+all = "deny"
+broken_intra_doc_links = "deny"
+private_intra_doc_links = "allow"
+
+# Lint target for Clippy ("A collection of lints to catch common
+# mistakes and improve your Rust code.", ref:
+# https://doc.rust-lang.org/nightly/clippy/)
+[lints.clippy]
+# Clippy lint target one. Enables all lints that are on by
+# default (correctness, suspicious, style, complexity, perf).
+all = "deny"
+# Clippy lint target two. Enables lints which are rather strict
+# or have occasional false positives.
+nursery = "deny"
+# Clippy lint target three. Enables new lints that are still
+# under development
+pedantic = "deny"
+# Clippy lint target four. Enable lints for the cargo manifest
+# file, a.k.a. Cargo.toml.
+cargo = { level = "deny", priority = 0 }
+multiple_crate_versions = { level = "allow", priority = 1 }
+# Individual lints go here now:
+missing_docs_in_private_items = "deny"

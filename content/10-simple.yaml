@@ -1,0 +1,40 @@
+- category: General
+  variables:
+    - name: ACCOUNT_PROVISIONER
+      description: >-
+        Configures the provisioning source of user accounts (including aliases) for user
+        queries and authentication by services managed by DMS (_Postfix and Dovecot_).
+
+        User provisioning via OIDC is planned for the future, see
+        [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+
+        When choosing `LDAP`, a second container is necessary (e.g.
+        [docker-openldap](https://github.com/osixia/docker-openldap)).
+      type: String
+      values:
+        - value: FILE
+          description: use local files
+        - value: LDAP
+          description: use LDAP authentication
+        - value: OIDC
+          description: use OIDC authentication (**not yet implemented**)
+      default: FILE
+
+    - name: DMS_DEBUG
+      description: Display debug information.
+      type: NumberAsBool
+      values:
+        - value: 0
+          description: Debug disabled
+        - value: 1
+          description: Enables debug on startup
+      default: 0
+      meta: !Removed v9.0.0
+
+
+- category: Haha
+  variables:
+    - name: TEST
+      description: Some random variable
+      type: String
+      default: Lol

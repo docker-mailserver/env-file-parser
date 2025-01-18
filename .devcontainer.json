@@ -1,0 +1,66 @@
+{
+  "name": "development",
+  "image": "ghcr.io/georglauterbach/dev-container-base:4.4.0",
+  "features": {
+    "ghcr.io/georglauterbach/dev-container-features/rust:5.6.0": {
+      "system.packages.additional-packages": "pkg-config,musl-tools",
+      "linker.mold.install": "true"
+    }
+  },
+  "updateRemoteUserUID": true,
+  "remoteUser": "ubuntu",
+  "containerUser": "ubuntu",
+  "containerEnv": {
+    "CARGO_TARGET_DIR": "${containerWorkspaceFolder}/target",
+    "CARGO_HOME": "${containerWorkspaceFolder}/.rust/cargo/home",
+    "RUSTUP_HOME": "${containerWorkspaceFolder}/.rust/rustup",
+    "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER": "aarch64-linux-gnu-gcc",
+    "CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER": "x86_64-linux-musl-gcc"
+  },
+  "remoteEnv": {
+    "PATH": "${containerEnv:CARGO_HOME}/bin:${containerEnv:PATH}"
+  },
+  "initializeCommand": "mkdir -p \"${HOME}/.gnupg\" \"${HOME}/.ssh\"",
+  "mounts": [
+    {
+      // We bind the GPG directory because signing seems to be
+      // bricked without it at the moment.
+      "source": "${localEnv:HOME}/.gnupg",
+      "target": "/home/ubuntu/.gnupg",
+      "type": "bind"
+    },
+    {
+      // We bind the SSH directory because dealing with `SSH_AUTH_SOCK`
+      // and the SSH agent is unpleasant.
+      "source": "${localEnv:HOME}/.ssh",
+      "target": "/home/ubuntu/.ssh",
+      "type": "bind"
+    },
+    {
+      // Persist the `${HOME}/.cache` directory
+      "source": "github.docker-mailserver.env-generator.cache",
+      "target": "/home/ubuntu/.cache",
+      "type": "volume"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments"
+      ],
+      "settings": {
+        // * basics
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "code/.rust/**": true
+        },
+        "files.exclude": {
+          "**/.git": true,
+          "code/.rust": true
+        },
+        // * extensions::asciidoctor.asciidoctor-vscode
+        "asciidoc.antora.showEnableAntoraPrompt": false
+      }
+    }
+  }
+}
