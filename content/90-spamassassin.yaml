@@ -1,8 +1,0 @@
-- name: SPAMASSASSIN_SPAM_TO_INBOX
-  description: Description is missing.
-  values:
-    - value: 0
-      description: Spam messages will be bounced (rejected) without any notification (dangerous).
-    - value: 1
-      description: Spam messages will be delivered to the inbox and tagged as spam using SA_SPAM_SUBJECT.
-  default: 0

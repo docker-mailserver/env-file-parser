@@ -1,0 +1,150 @@
+# -----------------------------------------------
+# --- Mailserver Environment Variables ----------
+# -----------------------------------------------
+
+# --- DOCUMENTATION FOR THESE VARIABLES IS FOUND UNDER
+# --- https://docker-mailserver.github.io/docker-mailserver/edge/config/environment/
+
+# -----------------------------------------------
+# --- General Section ---------------------------
+# -----------------------------------------------
+
+- category: General
+  variables:
+    - name: ACCOUNT_PROVISIONER
+      description: >-
+        Configures the provisioning source of user accounts (including aliases) for user
+        queries and authentication by services managed by DMS (_Postfix and Dovecot_).
+
+        User provisioning via OIDC is planned for the future, see
+        [this tracking issue](https://github.com/docker-mailserver/docker-mailserver/issues/2713).
+
+        When choosing `LDAP`, a second container is necessary (e.g.
+        [docker-openldap](https://github.com/osixia/docker-openldap)).
+      type: NonEmptyString
+      values:
+        - value: FILE
+          description: use local files (this is used as the default)
+        - value: LDAP
+          description: use LDAP authentication
+        - value: OIDC
+          description: use OIDC authentication (**not yet implemented**)
+      default: FILE
+
+    - name: DMS_DEBUG
+      description: Display debug information.
+      type: NumberAsBool
+      values:
+        - value: 0
+          description: Debug disabled
+        - value: 1
+          description: Enables debug on startup
+      default: 0
+      state: Removed
+
+    - name: LOG_LEVEL
+      description: >-
+        Set the log level for DMS.
+        This is mostly relevant for container startup scripts and change detection event feedback.
+        The log-level will show everything in its class and above.
+      type: NonEmptyString
+      values:
+        - value: error
+          description: Only show errors
+        - value: warn
+          description: Only show warnings and errors.
+        - value: info
+          description: Only show informational messages, warnings and errors.
+        - value: debug
+          description: Like `info`, but also show debug messages (verbose).
+        - value: trace
+          description: Like `debug`, but also show extra debug messages (very verbose).
+      default: info
+
+    - name: ONE_DIR
+      description: |
+        Chooses whether to consolidate all states into a single directory.
+      type: NumberAsBool
+      values:
+        - value: 0
+          description: Mail state in default directories
+        - value: 1
+          description: >-
+            Consolidate all states into a single directory (`/var/mail-state`)
+            to allow persistence using docker volumes
+      default: 1
+
+    - name: OVERRIDE_HOSTNAME
+      description: >-
+        Specify a FQDN to serve mail for.
+        This is used for many of the config features, so if you can't set your hostname
+        (e.g. you're in a container platform that doesn't let you) specify it in this
+        environment variable.
+
+
+        Specify a fully-qualified domainname to serve mail for.
+        This is used for many of the config features so if you can't set your hostname
+        (_eg: you're in a container platform that doesn't let you_) specify it via this
+        environment variable. It will take priority over `docker run` options:
+        `--hostname` and `--domainname`, or `docker-compose.yml` config equivalents:
+        `hostname:` and `domainname:`.
+      type: NonEmptyString
+
+    - name: PERMIT_DOCKER
+      description: >-
+        Set different options for mynetworks option (can be overwrite in `postfix-main.cf`).
+
+
+        **WARNING**: Adding the docker network's gateway to the list of trusted hosts, e.g.
+        using the `network` or `connected-networks` option, can create an
+        [**open relay**](https://en.wikipedia.org/wiki/Open_mail_relay), for instance if
+        IPv6 is enabled on the host machine but not in Docker.
+
+
+        Note: you probably want to
+        [set `POSTFIX_INET_PROTOCOLS=ipv4`](#postfix_inet_protocols) to make it work fine with Docker.
+      type: String
+      values:
+        - value: ''
+          description: Explicitly force authentication
+        - value: container
+          description: Container IP address only
+        - value: host
+          description: Add docker host (ipv4 only)
+        - value: network
+          description: >-
+            Add the docker default bridge network (172.16.0.0/12);
+            **WARNING**: `docker-compose` might use others (e.g. 192.168.0.0/16)
+            use `PERMIT_DOCKER=connected-networks` in this case.
+        - value: connected-networks
+          description: Add all connected docker networks (ipv4 only)
+      default:
+
+    - name: SUPERVISOR_LOGLEVEL
+      description: >-
+        Here you can adjust the
+        [log-level for Supervisor](http://supervisord.org/logging.html#activity-log-levels).
+        The log-level will show everything in its class and above.
+      type: NonEmptyString
+      values:
+        - value: critical
+          description: Only show critical messages
+        - value: error
+          description: OOnly show erroneous output and critical messages
+        - value: warn
+          description: Like `error` but also show warnings
+        - value: info
+          description: Normal informational output
+        - value: debug
+          description: Like `info`, but also show debug messages
+      default: warn
+
+    - name: TZ
+      description: >-
+        Set the timezone. The value of this variable must follow the pattern `AREA/ZONE`, i.e.
+        if you want to use Germany's time zone, use `Europe/Berlin`. You can lookup all
+        available timezones [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List).
+
+
+        If not set explicitly, the container runtime will try to detect the time using `/etc/localtime`,
+      type: NonEmptyString

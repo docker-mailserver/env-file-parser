@@ -21,6 +21,7 @@ impl Categories {
         let mut markdown = String::from("# Environment Variables\n");
 
         for category in &self.0 {
+            markdown.push('\n');
             markdown.push_str(category.write_as_markdown().as_str());
         }
 
@@ -32,11 +33,11 @@ impl Categories {
         let mut content = String::from("#!/bin/bash");
 
         for category in &self.0 {
-			content.push_str("\n\n");
+            content.push_str("\n\n");
             content.push_str(category.write_as_shell().as_str());
         }
 
-		content.push('\n');
+        content.push('\n');
         std::fs::write(path, content)?;
         Ok(())
     }
@@ -54,7 +55,7 @@ pub struct Category {
 impl Category {
     /// TODO
     pub fn write_as_markdown(&self) -> String {
-        let mut markdown = format!("##  {}", self.category);
+        let mut markdown = format!("##  {}\n", self.category);
         markdown.push_str(self.variables.write_as_markdown().as_str());
         markdown
     }
@@ -315,11 +316,11 @@ impl Variable {
     fn to_shell(&self) -> String {
         format!(
             "  # {}\n  VARS[{}]=\"${{{}:={}}}\"",
-			self.description.replace("\n", "\n  # "),
+            self.description.replace("\n", "\n  # "),
             self.name,
             self.name,
             if let Some(default) = &self.default {
-                default.to_string()
+                default.to_string().replace('`', "")
             } else {
                 String::new()
             }
@@ -371,7 +372,7 @@ pub struct ValueEntry {
 
 impl std::fmt::Display for ValueEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "`{}` ⇒ {}", self.value, self.description)
+        write!(f, "{} ⇒ {}", self.value, self.description)
     }
 }
 
@@ -391,10 +392,14 @@ impl std::fmt::Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Number(number) => {
-                write!(f, "{number}")
+                write!(f, "`{number}`")
             }
             Self::String(string) => {
-                write!(f, "{string}")
+                if string.is_empty() {
+                    write!(f, "\"\"")
+                } else {
+                    write!(f, "`{string}`")
+                }
             }
             Self::List(list) => {
                 write!(f, "{list:?}")
